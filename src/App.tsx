@@ -1,73 +1,81 @@
 import React, { useState } from 'react';
+import { NextUIProvider } from '@nextui-org/react';
 import { LandingView } from './components/Layout/LandingView';
 import { ChatView } from './components/Chat/ChatView';
+import { Sidebar } from './components/Layout/Sidebar';
 import { useConversations } from './hooks/useConversations';
 import { useFileHandler } from './hooks/useFileHandler';
+import clsx from 'clsx';
+import './styles/index.css';
 
 export function App() {
   const [isStarted, setIsStarted] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const {
     conversations,
     activeConversationId,
+    setActiveConversationId,
     createConversation,
     addMessage,
   } = useConversations();
-  const { handleFileUpload: processFile } = useFileHandler();
+
+  const activeConversation = conversations.find(
+    (conv) => conv.id === activeConversationId
+  );
 
   const handleStart = (message: string) => {
     const conversation = createConversation();
     addMessage(conversation.id, message, 'user');
-    addMessage(conversation.id, "I'm analyzing your request. What would you like to know?", 'bot');
     setIsStarted(true);
+    setIsSidebarOpen(true);
+  };
+
+  const handleNewChat = () => {
+    const conversation = createConversation();
+    setActiveConversationId(conversation.id);
   };
 
   const handleSendMessage = (message: string) => {
-    if (!activeConversationId) return;
-    addMessage(activeConversationId, message, 'user');
-    // Simulate bot response
-    setTimeout(() => {
-      addMessage(
-        activeConversationId,
-        "I'm analyzing your data. What would you like to know?",
-        'bot'
-      );
-    }, 1000);
-  };
-
-  const handleFileUpload = async (files: File[]) => {
-    const conversation = activeConversationId
-      ? { id: activeConversationId }
-      : createConversation();
-    
-    const fileData = await processFile(files[0]);
-    addMessage(
-      conversation.id,
-      `Received ${files[0].name}. I can help you analyze this data. What would you like to know?`,
-      'bot',
-      { dataPreview: fileData }
-    );
-    
-    if (!isStarted) {
-      setIsStarted(true);
+    if (activeConversationId) {
+      addMessage(activeConversationId, message, 'user');
     }
   };
 
-  const activeConversation = conversations.find(c => c.id === activeConversationId);
+  const { handleFileUpload } = useFileHandler();
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
-      {!isStarted ? (
-        <LandingView
-          onStart={handleStart}
-          onFileUpload={handleFileUpload}
-        />
-      ) : (
-        <ChatView
-          messages={activeConversation?.messages || []}
-          onSendMessage={handleSendMessage}
-          onFileUpload={handleFileUpload}
-        />
-      )}
-    </div>
+    <NextUIProvider>
+      <div className="main-container">
+        {!isStarted ? (
+          <LandingView
+            onStart={handleStart}
+            onFileUpload={handleFileUpload}
+          />
+        ) : (
+          <div className="flex">
+            <Sidebar
+              conversations={conversations}
+              activeId={activeConversationId}
+              onSelect={setActiveConversationId}
+              onNew={handleNewChat}
+              isOpen={isSidebarOpen}
+              onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
+            <main 
+              className={clsx(
+                'flex-1 transition-all duration-300',
+                isSidebarOpen ? 'ml-64' : 'ml-0'
+              )}
+            >
+              <ChatView
+                messages={activeConversation?.messages || []}
+                onSendMessage={handleSendMessage}
+                onFileUpload={handleFileUpload}
+              />
+            </main>
+          </div>
+        )}
+      </div>
+    </NextUIProvider>
   );
 }

@@ -21,6 +21,7 @@ export interface Conversation {
   title: string;
   messages: Message[];
   lastUpdated: number;
+  starred?: boolean;
 }
 
 export interface DataFile {

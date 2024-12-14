@@ -1,6 +1,7 @@
 import React from 'react';
-import { MessageSquare, Plus, ChevronLeft } from 'lucide-react';
+import { MessageSquare, Plus, ChevronLeft, Star } from 'lucide-react';
 import { Conversation } from '../../types';
+import { formatDate } from '../../utils/helpers';
 import clsx from 'clsx';
 
 interface ConversationListProps {
@@ -20,11 +21,14 @@ export function ConversationList({
   isOpen,
   onToggle,
 }: ConversationListProps) {
+  const starredConversations = conversations.filter(conv => conv.starred);
+  const recentConversations = conversations.filter(conv => !conv.starred);
+
   return (
     <>
       <div
         className={clsx(
-          'fixed top-0 left-0 h-full bg-gray-900 transition-all duration-300 border-r border-gray-800',
+          'fixed top-0 left-0 h-full bg-gray-900/95 backdrop-blur-sm transition-all duration-300 border-r border-gray-800 z-10',
           isOpen ? 'w-64' : 'w-0'
         )}
       >
@@ -38,29 +42,39 @@ export function ConversationList({
           </button>
         </div>
 
-        <div className="overflow-y-auto h-[calc(100vh-5rem)]">
-          {conversations.map((conv) => (
-            <button
-              key={conv.id}
-              onClick={() => onSelect(conv.id)}
-              className={clsx(
-                'w-full text-left p-4 hover:bg-gray-800 transition-colors',
-                activeId === conv.id && 'bg-gray-800'
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <MessageSquare className="w-4 h-4 text-gray-400" />
-                <span className="text-sm truncate">{conv.title}</span>
-              </div>
-            </button>
-          ))}
+        <div className="overflow-y-auto h-[calc(100vh-5rem)] px-2">
+          {starredConversations.length > 0 && (
+            <div className="mb-4">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase px-4 mb-2">Starred</h2>
+              {starredConversations.map((conv) => (
+                <ConversationItem
+                  key={conv.id}
+                  conversation={conv}
+                  isActive={activeId === conv.id}
+                  onClick={() => onSelect(conv.id)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div>
+            <h2 className="text-xs font-semibold text-gray-400 uppercase px-4 mb-2">Recent</h2>
+            {recentConversations.map((conv) => (
+              <ConversationItem
+                key={conv.id}
+                conversation={conv}
+                isActive={activeId === conv.id}
+                onClick={() => onSelect(conv.id)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       <button
         onClick={onToggle}
         className={clsx(
-          'fixed top-4 left-4 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors',
+          'fixed top-4 left-4 p-2 rounded-lg bg-gray-800/90 hover:bg-gray-700 transition-colors z-20',
           !isOpen && 'translate-x-64'
         )}
       >
@@ -70,5 +84,38 @@ export function ConversationList({
         )} />
       </button>
     </>
+  );
+}
+
+interface ConversationItemProps {
+  conversation: Conversation;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+function ConversationItem({ conversation, isActive, onClick }: ConversationItemProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={clsx(
+        'w-full text-left p-3 rounded-lg hover:bg-gray-800/50 transition-colors mb-1',
+        isActive && 'bg-gray-800/50'
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <MessageSquare className="w-4 h-4 text-gray-400" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium truncate">{conversation.title}</span>
+            {conversation.starred && (
+              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+            )}
+          </div>
+          <p className="text-xs text-gray-400 truncate">
+            {formatDate(conversation.lastUpdated)}
+          </p>
+        </div>
+      </div>
+    </button>
   );
 }
