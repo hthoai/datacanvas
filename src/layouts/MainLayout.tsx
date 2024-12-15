@@ -25,7 +25,6 @@ export function MainLayout() {
     const conversation = createConversation();
     addMessage(conversation.id, message, 'user');
     setIsStarted(true);
-    setIsSidebarOpen(true);
   };
 
   const handleNewChat = () => {
@@ -42,7 +41,7 @@ export function MainLayout() {
   const { handleFileUpload } = useFileHandler();
 
   return (
-    <div className="main-container">
+    <div className="min-h-screen">
       <Sidebar
         conversations={conversations}
         activeId={activeConversationId}
@@ -55,7 +54,7 @@ export function MainLayout() {
       <main 
         className={clsx(
           'min-h-screen transition-all duration-300',
-          isSidebarOpen ? 'ml-64' : 'ml-0'
+          isSidebarOpen ? 'pl-64' : 'pl-0'
         )}
       >
         {!isStarted ? (

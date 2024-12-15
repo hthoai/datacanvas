@@ -24,22 +24,20 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <>
-      <div
+      <aside
         className={clsx(
-          'fixed top-0 left-0 h-full bg-gray-900/95 backdrop-blur-sm transition-all duration-300 border-r border-gray-800 z-10 flex flex-col',
-          isOpen ? 'w-64' : 'w-0'
+          'fixed top-0 left-0 h-full bg-gray-900/95 backdrop-blur-sm transition-transform duration-300 border-r border-gray-800 w-64 z-10',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <Header isOpen={isOpen} />
-        {isOpen && (
-          <Content
-            conversations={conversations}
-            activeId={activeId}
-            onSelect={onSelect}
-            onNew={onNew}
-          />
-        )}
-      </div>
+        <Content
+          conversations={conversations}
+          activeId={activeId}
+          onSelect={onSelect}
+          onNew={onNew}
+        />
+      </aside>
 
       <button
         onClick={onToggle}
