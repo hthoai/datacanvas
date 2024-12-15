@@ -24,10 +24,12 @@ export function ChatView({ messages, onSendMessage, onFileUpload }: ChatViewProp
       </div>
       
       <div className="fixed bottom-8 left-0 right-0 px-4">
-        <ChatInput
-          onSendMessage={onSendMessage}
-          onFileUpload={onFileUpload}
-        />
+        <div className={messages.length > 0 ? 'pl-0' : ''}>
+          <ChatInput
+            onSendMessage={onSendMessage}
+            onFileUpload={onFileUpload}
+          />
+        </div>
       </div>
     </div>
   );

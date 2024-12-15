@@ -1,32 +1,38 @@
 import { useState } from 'react';
 import { DataFile } from '../types';
-import { parseCSV, parseExcel } from '../utils/parsers';
+import { parseFile } from '../utils/file-parsers';
+import { isValidFileType } from '../utils/file-validators';
 
 export function useFileHandler() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFileUpload = async (file: File): Promise<DataFile> => {
+  const handleFileUpload = async (files: File[]): Promise<void> => {
+    if (!files || files.length === 0) {
+      setError('No files selected');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      let data;
-      if (file.name.endsWith('.csv')) {
-        data = await parseCSV(file);
-      } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-        data = await parseExcel(file);
-      } else {
+      const file = files[0]; // Handle first file for now
+      
+      if (!isValidFileType(file)) {
         throw new Error('Unsupported file format');
       }
+
+      const parsedData = await parseFile(file);
       
-      return {
-        filename: file.name,
-        data
-      };
+      // Handle the parsed data here
+      console.log('Parsed data:', parsedData);
+      
+      return parsedData;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process file');
-      throw err;
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process file';
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }

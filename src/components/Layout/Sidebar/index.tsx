@@ -26,12 +26,11 @@ export function Sidebar({
     <>
       <div
         className={clsx(
-          'sidebar-container',
-          isOpen ? 'w-64' : 'w-0 -translate-x-full'
+          'fixed top-0 left-0 h-full bg-gray-900/95 backdrop-blur-sm transition-all duration-300 border-r border-gray-800 z-10 flex flex-col',
+          isOpen ? 'w-64' : 'w-0'
         )}
       >
-        <Header isOpen={isOpen} onToggle={onToggle} />
-        
+        <Header isOpen={isOpen} />
         {isOpen && (
           <Content
             conversations={conversations}
@@ -42,15 +41,21 @@ export function Sidebar({
         )}
       </div>
 
-      {!isOpen && (
-        <button
-          onClick={onToggle}
-          className="fixed top-4 left-4 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors z-20"
-          aria-label="Show sidebar"
-        >
-          <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
-        </button>
-      )}
+      <button
+        onClick={onToggle}
+        className={clsx(
+          "fixed p-2 rounded-lg bg-gray-800/90 hover:bg-gray-700/90 transition-colors z-20",
+          isOpen ? "top-4 left-[17rem]" : "top-4 left-4"
+        )}
+        aria-label={isOpen ? "Hide sidebar" : "Show sidebar"}
+      >
+        <ChevronLeft 
+          className={clsx(
+            'w-5 h-5 text-gray-400 transition-transform',
+            !isOpen && 'rotate-180'
+          )} 
+        />
+      </button>
     </>
   );
 }

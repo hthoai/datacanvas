@@ -17,24 +17,12 @@
 }
 
 @layer components {
-  .sidebar-container {
-    @apply fixed top-0 left-0 h-full bg-gray-900 border-r border-gray-800 z-10 flex flex-col;
-  }
-
-  .sidebar-header {
-    @apply flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900;
-  }
-
-  .sidebar-content {
-    @apply flex-1 overflow-y-auto bg-gray-900;
-  }
-
   .main-container {
-    @apply min-h-screen bg-gray-900 text-gray-100;
+    @apply relative min-h-screen bg-gray-900 text-gray-100;
   }
 
-  .toggle-button {
-    @apply p-2 hover:bg-gray-800/50 rounded-lg transition-colors;
+  .sidebar-container {
+    @apply fixed top-0 left-0 h-full bg-gray-900/95 backdrop-blur-sm border-r border-gray-800 z-10;
   }
 }
 

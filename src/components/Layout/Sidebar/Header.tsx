@@ -1,17 +1,17 @@
 import React from 'react';
-import { Logo } from './Logo';
-import { ToggleButton } from './ToggleButton';
+import { Database } from 'lucide-react';
 
 interface HeaderProps {
   isOpen: boolean;
-  onToggle: () => void;
 }
 
-export function Header({ isOpen, onToggle }: HeaderProps) {
+export function Header({ isOpen }: HeaderProps) {
+  if (!isOpen) return null;
+  
   return (
-    <div className="sidebar-header">
-      <Logo />
-      <ToggleButton isOpen={isOpen} onClick={onToggle} />
+    <div className="flex items-center gap-2 p-4 border-b border-gray-800">
+      <Database className="w-5 h-5 text-cyan-500" />
+      <span className="font-semibold text-gray-100">DataCanvas</span>
     </div>
   );
 }

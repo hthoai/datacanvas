@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Send, Mic, Upload, Focus } from 'lucide-react';
+import { Send, Upload } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
+import { ACCEPTED_FILE_TYPES } from '../../constants/file-types';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -10,14 +11,13 @@ interface ChatInputProps {
 
 export function ChatInput({ onSendMessage, onFileUpload, autoFocus }: ChatInputProps) {
   const [message, setMessage] = useState('');
-  
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      'text/csv': ['.csv'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls']
-    },
-    onDrop: onFileUpload
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: ACCEPTED_FILE_TYPES,
+    onDrop: onFileUpload,
+    multiple: false,
+    noClick: true,
+    noKeyboard: true
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,20 +29,30 @@ export function ChatInput({ onSendMessage, onFileUpload, autoFocus }: ChatInputP
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-full max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="relative w-full max-w-4xl mx-auto" {...getRootProps()}>
+      <input {...getInputProps()} />
       <div className="relative flex items-center bg-white/10 backdrop-blur-lg rounded-lg border border-gray-600 p-2">
         <button
           type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.csv,.xlsx,.xls';
+            fileInput.multiple = false;
+            fileInput.onchange = (e) => {
+              const files = (e.target as HTMLInputElement).files;
+              if (files?.length) {
+                onFileUpload([files[0]]);
+              }
+            };
+            fileInput.click();
+          }}
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Focus mode"
+          aria-label="Upload file"
         >
-          <Focus className="w-5 h-5 text-gray-400" />
-        </button>
-        
-        <div {...getRootProps()} className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
-          <input {...getInputProps()} />
           <Upload className="w-5 h-5 text-gray-400" />
-        </div>
+        </button>
         
         <input
           type="text"
@@ -52,14 +62,6 @@ export function ChatInput({ onSendMessage, onFileUpload, autoFocus }: ChatInputP
           className="flex-1 bg-transparent border-none outline-none px-4 text-white placeholder-gray-400"
           autoFocus={autoFocus}
         />
-        
-        <button
-          type="button"
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Voice input"
-        >
-          <Mic className="w-5 h-5 text-gray-400" />
-        </button>
         
         <button
           type="submit"
